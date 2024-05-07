@@ -1,5 +1,8 @@
-const serversFilePath = path.resolve(__dirname, "./servers.txt");
+import { fileURLToPath } from 'url';
+import path from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import showdown from 'showdown';
 import compression from 'compression';
 import express from 'express';
