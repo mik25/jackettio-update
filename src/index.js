@@ -1,3 +1,6 @@
+const path = require("path");
+const serversFilePath = path.resolve(__dirname, "./servers.txt");
+
 import showdown from 'showdown';
 import compression from 'compression';
 import express from 'express';
