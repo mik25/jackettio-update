@@ -1,4 +1,3 @@
-const path = require("path");
 const serversFilePath = path.resolve(__dirname, "./servers.txt");
 
 import showdown from 'showdown';
