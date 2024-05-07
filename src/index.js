@@ -1,23 +1,21 @@
-import { fileURLToPath } from 'url';
-import path from 'path';
+const { fileURLToPath } = require('url');
+const path = require('path');
+const showdown = require('showdown');
+const compression = require('compression');
+const express = require('express');
+const localtunnel = require('localtunnel');
+const { rateLimit } = require('express-rate-limit');
+const { readFileSync } = require('fs');
+const config = require('./lib/config.js');
+const cache = require('./lib/cache.js');
+const icon = require('./lib/icon.js');
+const debrid = require('./lib/debrid.js');
+const { getIndexers } = require('./lib/jackett.js');
+const jackettio = require('./lib/jackettio.js');
+const { cleanTorrentFolder, createTorrentFolder } = require('./lib/torrentInfos.js');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import showdown from 'showdown';
-import compression from 'compression';
-import express from 'express';
-import localtunnel from 'localtunnel';
-import { rateLimit } from 'express-rate-limit';
-import {readFileSync} from "fs";
-import config from './lib/config.js';
-import cache, {vacuum as vacuumCache, clean as cleanCache} from './lib/cache.js';
-import path from 'path';
-import * as icon from './lib/icon.js';
-import * as debrid from './lib/debrid.js';
-import {getIndexers} from './lib/jackett.js';
-import * as jackettio from "./lib/jackettio.js";
-import {cleanTorrentFolder, createTorrentFolder} from './lib/torrentInfos.js';
-
 const converter = new showdown.Converter();
 const welcomeMessageHtml = config.welcomeMessage ? `${converter.makeHtml(config.welcomeMessage)}<div class="my-4 border-top border-secondary-subtle"></div>` : '';
 const addon = JSON.parse(readFileSync(`./package.json`));
@@ -37,14 +35,16 @@ const limiter = rateLimit({
   standardHeaders: 'draft-7',
   keyGenerator: (req) => req.clientIp || req.ip,
   handler: (req, res, next, options) => {
-    if(req.route.path == '/:userConfig/stream/:type/:id.json'){
+    if (req.route.path == '/:userConfig/stream/:type/:id.json') {
       const resetInMs = new Date(req.rateLimit.resetTime) - new Date();
-      return res.json({streams: [{
-        name: `${config.addonName}`,
-        title: `🛑 Too many requests, please try in ${Math.ceil(resetInMs / 1000 / 60)} minute(s).`,
-        url: '#'
-      }]})
-    }else{
+      return res.json({
+        streams: [{
+          name: `${config.addonName}`,
+          title: `🛑 Too many requests, please try in ${Math.ceil(resetInMs / 1000 / 60)} minute(s).`,
+          url: '#'
+        }]
+      })
+    } else {
       return res.status(options.statusCode).send(options.message);
     }
   }
